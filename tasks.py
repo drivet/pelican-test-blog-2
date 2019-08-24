@@ -23,7 +23,11 @@ CONFIG = {
     'deploy_path': SETTINGS['OUTPUT_PATH'],
     # Port for `serve`
     'port': 8000,
+    'ssh_host': 'desmondrivet.com',
+    'ssh_user': 'dcr',
+    'ssh_target_dir': '/home/dcr/wwwroot/pelican_test_blog'
 }
+
 
 @task
 def clean(c):
@@ -32,20 +36,24 @@ def clean(c):
         shutil.rmtree(CONFIG['deploy_path'])
         os.makedirs(CONFIG['deploy_path'])
 
+
 @task
 def build(c):
     """Build local version of site"""
     c.run('pelican -s {settings_base}'.format(**CONFIG))
+
 
 @task
 def rebuild(c):
     """`build` with the delete switch"""
     c.run('pelican -d -s {settings_base}'.format(**CONFIG))
 
+
 @task
 def regenerate(c):
     """Automatically regenerate site upon file modification"""
     c.run('pelican -r -s {settings_base}'.format(**CONFIG))
+
 
 @task
 def serve(c):
@@ -62,16 +70,19 @@ def serve(c):
     sys.stderr.write('Serving on port {port} ...\n'.format(**CONFIG))
     server.serve_forever()
 
+
 @task
 def reserve(c):
     """`build`, then `serve`"""
     build(c)
     serve(c)
 
+
 @task
 def preview(c):
     """Build production version of site"""
     c.run('pelican -s {settings_publish}'.format(**CONFIG))
+
 
 @task
 def livereload(c):
@@ -101,9 +112,7 @@ def livereload(c):
 def publish(c):
     """Publish to production via rsync"""
     c.run('pelican -s {settings_publish}'.format(**CONFIG))
-    c.run(
-        'rsync --delete --exclude ".DS_Store" -pthrvz -c '
-        '{} {production}:{dest_path}'.format(
-            CONFIG['deploy_path'].rstrip('/') + '/',
-            **CONFIG))
+    c.run('rsync -avzh -O -e \'ssh -o "StrictHostKeyChecking=no"\' '
+          '{deploy_path}/* {ssh_user}@{ssh_host}:{ssh_target_dir}'
+          .format(**CONFIG))
 
