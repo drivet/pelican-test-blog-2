@@ -11,15 +11,15 @@
 
 {% block content %}
 <section id="content" class="body">
-  <article>
+  <article class="h-entry">
     <header>
-      <h1 class="entry-title">
+      <h1 class="entry-title p-name">
         <a href="{{ SITEURL }}/{{ article.url }}" rel="bookmark"
            title="Permalink to {{ article.title|striptags }}">{{ article.title }}</a></h1>
       {% include 'twitter.html' %}
     </header>
 
-    <div class="entry-content">
+    <div class="entry-contenti e-content">
       {% include 'article_infos.html' %}
       {{ article.content }}
     </div><!-- /.entry-content -->
